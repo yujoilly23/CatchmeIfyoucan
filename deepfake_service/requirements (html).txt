@@ -1,0 +1,10 @@
+faster-whisper
+google-genai
+torch
+torchvision
+mediapipe
+opencv-python-headless
+Pillow
+gradio
+numpy
+flask
