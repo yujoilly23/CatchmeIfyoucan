@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Deepfake & Audio Error Forensic Intelligence Platform</title>
+    <!-- Google Fonts (Noto Sans KR, Plus Jakarta Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* (기존 CSS와 동일하게 유지 - 분량상 생략 없이 모두 붙여넣으세요) */
+        :root {
+            --bg-body: #0f0d0b; --bg-card: #191512; --bg-card-hover: #241e1a;
+            --primary: #a0522d; --primary-hover: #8b4513; --primary-glow: rgba(207, 174, 120, 0.25);
+            --accent: #CFAE78; --text-main: #f5f0eb; --text-sub: #a89f91;
+            --border-color: rgba(207, 174, 120, 0.2); --badge-bg: rgba(207, 174, 120, 0.12); --badge-text: #CFAE78;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        #start-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #080605; background-image: radial-gradient(circle at 50% 50%, rgba(207, 174, 120, 0.15), transparent 70%), url('/static/background.PNG'); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.6s, visibility 0.6s; }
+        #start-screen.hidden { opacity: 0; visibility: hidden; }
+        .start-btn { padding: 22px 60px; font-size: 24px; font-weight: 700; color: #191512; background: linear-gradient(135deg, var(--accent), #e0c89a); border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 10px 30px var(--primary-glow); transition: all 0.3s; margin-top: 150px; }
+        .start-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 40px rgba(207, 174, 120, 0.4); }
+        #main-dashboard { width: 100%; max-width: 1440px; opacity: 1; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .title-area h1 { font-size: 26px; font-weight: 700; background: linear-gradient(135deg, #fff 30%, var(--badge-text)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title-area p { color: var(--text-sub); font-size: 14px; margin-top: 6px; }
+        .user-info { display: flex; align-items: center; gap: 16px; background: var(--bg-card); padding: 8px 20px; border-radius: 30px; border: 1px solid var(--border-color); font-size: 13px; color: var(--text-sub); }
+        .user-info .status-dot { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; }
+        .column { display: flex; flex-direction: column; gap: 24px; }
+        .card { background: var(--bg-card); border-radius: 16px; padding: 24px; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35); }
+        .card-header-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .badge-title { display: inline-flex; background-color: var(--badge-bg); color: var(--badge-text); padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .upload-box { border: 2px dashed rgba(207, 174, 120, 0.3); border-radius: 12px; padding: 40px 20px; text-align: center; color: var(--text-sub); cursor: pointer; background: rgba(0, 0, 0, 0.15); transition: all 0.3s; }
+        .upload-box:hover { border-color: var(--accent); background: rgba(207, 174, 120, 0.08); color: var(--text-main); }
+        .btn-advanced { background: transparent; border: 1px solid var(--border-color); color: var(--text-sub); padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+        .btn-advanced.active { color: var(--text-main); border-color: var(--accent); }
+        .advanced-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; margin-top: 0; }
+        .advanced-panel.open { max-height: 200px; margin-top: 16px; }
+        .algorithm-options { display: flex; gap: 10px; background: rgba(0, 0, 0, 0.25); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .radio-label { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: var(--bg-card); color: var(--text-sub); text-align: center; font-size: 13px; }
+        .radio-label.active { color: var(--text-main); font-weight: 700; border-color: var(--accent); box-shadow: 0 4px 12px var(--primary-glow); }
+        .btn-analyze { width: 100%; padding: 15px; margin-top: 16px; background-color: #241e1a; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-analyze:hover { background-color: var(--accent); color: #000; }
+        .empty-area { min-height: 120px; background-color: rgba(0, 0, 0, 0.25); border: 1px dashed var(--border-color); border-radius: 10px; padding: 15px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .preview-box { height: 160px; background-color: rgba(0, 0, 0, 0.25); border: 1px dashed var(--border-color); border-radius: 10px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .preview-box img { width: 100%; height: 100%; object-fit: contain; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. 시작 화면 -->
+    <div id="start-screen">
+        <button class="start-btn" onclick="startSystem()">시작하기</button>
+    </div>
+
+    <!-- 2. 메인 분석 UI -->
+    <div id="main-dashboard">
+        <header>
+            <div class="title-area">
+                <h1>AI Deepfake & Audio Error Forensic Intelligence</h1>
+                <p>영상 속 <strong>얼굴 합성(딥페이크)</strong> 정밀 판정 및 <strong>Faster-Whisper STT 기반 음성 분석/구간 탐지</strong> 시스템</p>
+            </div>
+            <div class="user-info">
+                <span class="status-dot"></span>
+                <span>Greenjuicy / <strong>catchmeifyoucan</strong></span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Column -->
+            <div class="column">
+                <div class="card">
+                    <div class="card-header-row">
+                        <div class="badge-title">검증할 영상 업로드</div>
+                        <button class="btn-advanced" id="toggle-advanced" onclick="toggleAdvancedSettings()">고급 설정</button>
+                    </div>
+                    
+                    <!-- 파일 업로드 숨김 인풋 -->
+                    <input type="file" id="video-upload" accept="video/*" style="display: none;" onchange="updateFileName()">
+                    
+                    <!-- 클릭하면 숨겨진 인풋 창을 엽니다 -->
+                    <div class="upload-box" onclick="document.getElementById('video-upload').click()">
+                        <p id="file-name-display">비디오를 여기에 드롭하세요<br><span>또는 <strong>클릭하여 파일 선택</strong></span></p>
+                    </div>
+
+                    <div class="advanced-panel" id="advanced-panel">
+                        <div class="algorithm-options">
+                            <label class="radio-label active" onclick="selectAlgo(this)">
+                                <input type="radio" name="algo" value="가중치 결합 (Hybrid)" checked hidden> 가중치 결합
+                            </label>
+                            <label class="radio-label" onclick="selectAlgo(this)">
+                                <input type="radio" name="algo" value="단순 평균 (Mean)" hidden> 단순 평균
+                            </label>
+                            <label class="radio-label" onclick="selectAlgo(this)">
+                                <input type="radio" name="algo" value="최대 확률 (Max Rule)" hidden> 최대 확률
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn-analyze" onclick="startAnalysis()" id="analyze-btn">영상 분석 시작</button>
+                </div>
+                
+                <div class="card">
+                    <div class="badge-title">음성 인식 원문 (Faster-Whisper STT)</div>
+                    <!-- 결과를 표시할 영역에 ID 부여 -->
+                    <div class="empty-area" id="stt-result" style="color: var(--text-sub);">결과 대기 중...</div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="column">
+                <div class="card">
+                    <div class="badge-title">영상 딥페이크 판정 결과</div>
+                    <!-- 결과를 표시할 영역에 ID 부여 -->
+                    <div class="empty-area" id="fake-result" style="color: var(--text-sub); height: 120px;">결과 대기 중...</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="badge-title">분석 프레임</div>
+                        <div class="preview-box" id="frame-img-box">대기 중</div>
+                    </div>
+                    <div class="card">
+                        <div class="badge-title">Grad-CAM 의심 영역</div>
+                        <div class="preview-box" id="cam-img-box">대기 중</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="badge-title">음성 인식 오인식 / 에러 의심 구간 분석</div>
+                    <!-- 결과를 표시할 영역에 ID 부여 -->
+                    <div class="empty-area" id="error-check-result" style="color: var(--text-sub); height: 140px;">결과 대기 중...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startSystem() { document.getElementById('start-screen').classList.add('hidden'); }
+        function toggleAdvancedSettings() { 
+            document.getElementById('advanced-panel').classList.toggle('open'); 
+            document.getElementById('toggle-advanced').classList.toggle('active'); 
+        }
+        function selectAlgo(element) {
+            document.querySelectorAll('.radio-label').forEach(lbl => lbl.classList.remove('active'));
+            element.classList.add('active');
+            element.querySelector('input').checked = true;
+        }
+
+        // 파일 선택 시 이름 표시
+        function updateFileName() {
+            const fileInput = document.getElementById('video-upload');
+            const display = document.getElementById('file-name-display');
+            if (fileInput.files.length > 0) {
+                display.innerHTML = `<strong style="color:var(--accent); font-size:16px;">${fileInput.files[0].name}</strong><br><span>파일이 선택되었습니다.</span>`;
+            }
+        }
+
+        // 대망의 분석 요청 기능 (파이썬 서버와 통신!)
+        async function startAnalysis() {
+            const fileInput = document.getElementById('video-upload');
+            const btn = document.getElementById('analyze-btn');
+
+            if (fileInput.files.length === 0) {
+                alert("먼저 검증할 영상을 업로드해주세요.");
+                return;
+            }
+
+            // 알고리즘 선택값 가져오기
+            const selectedAlgo = document.querySelector('input[name="algo"]:checked').value;
+
+            // 전송할 데이터 포장
+            const formData = new FormData();
+            formData.append("video", fileInput.files[0]);
+            formData.append("algo", selectedAlgo);
+
+            // 로딩 상태 표시
+            btn.innerText = "분석 진행 중... (최대 1~2분 소요)";
+            btn.style.opacity = "0.7";
+            btn.disabled = true;
+
+            try {
+                // 파이썬의 /analyze 주소로 파일 던지기
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    // 성공 시 화면에 결과 꽂아넣기!
+                    document.getElementById('fake-result').innerText = data.result;
+                    document.getElementById('fake-result').style.color = "var(--text-main)";
+
+                    document.getElementById('stt-result').innerText = data.stt;
+                    document.getElementById('stt-result').style.color = "var(--text-main)";
+
+                    document.getElementById('error-check-result').innerText = data.error_check;
+                    document.getElementById('error-check-result').style.color = "var(--text-main)";
+
+                    if (data.img_crop) {
+                        document.getElementById('frame-img-box').innerHTML = `<img src="${data.img_crop}" alt="원본 프레임">`;
+                    }
+                    if (data.img_cam) {
+                        document.getElementById('cam-img-box').innerHTML = `<img src="${data.img_cam}" alt="Grad-CAM">`;
+                    }
+                }
+            } catch (error) {
+                alert("서버 연결에 실패했습니다.");
+            } finally {
+                // 버튼 원상복구
+                btn.innerText = "영상 분석 시작";
+                btn.style.opacity = "1";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
