@@ -1,0 +1,10 @@
+torch
+torchvision
+transformers
+accelerate
+faster-whisper
+mediapipe
+opencv-python-headless
+Pillow
+gradio
+numpy
