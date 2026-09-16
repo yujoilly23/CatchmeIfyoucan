@@ -1,0 +1,39 @@
+# 9. Gradio UI
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    gr.HTML("""
+<h1 style="font-size:80px; text-align:center; margin-bottom:10px; color:#926A3D;">
+CATCH ME IF YOU CAN
+</h1>
+
+<p style="text-align:center; font-size:18px; color:#666;">
+교묘한 얼굴 딥페이크 탐지부터 발화 내용의 허위 사실 교정까지 한 번에 판별합니다.
+</p>
+""")
+    with gr.Row():
+        with gr.Column(scale=1):
+            video_input = gr.Video(label="검증할 영상 업로드")
+            decision_rule = gr.Radio(
+                ["가중치 결합 판정 (Hybrid)", "단순 평균 (Mean)", "최대 확률 (Max Rule)"],
+                value="가중치 결합 판정 (Hybrid)",
+                label="영상 판정 알고리즘"
+            )
+            submit_btn = gr.Button("영상 분석 및 오류 검증 시작", variant="primary")
+
+        with gr.Column(scale=1):
+            res = gr.Textbox(label="영상 딥페이크 판정 결과", lines=4)
+            with gr.Row():
+                img1 = gr.Image(label="분석 프레임")
+                img2 = gr.Image(label="Grad-CAM 의심 영역")
+
+    gr.Markdown("---")
+    with gr.Row():
+        with gr.Column(scale=1):
+            txt_raw = gr.Textbox(label="음성 인식 원문 (STT)", lines=5)
+        with gr.Column(scale=1):
+            txt_corrected = gr.Textbox(label="발견된 오류 분석 결과", lines=5)
+
+    submit_btn.click(
+        predict_video,
+        inputs=[video_input, decision_rule],
+        outputs=[res, txt_raw, txt_corrected, img1, img2]
+    )
